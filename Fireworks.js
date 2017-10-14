@@ -160,8 +160,9 @@ function animate(){
 	c.fillStyle = "rgba(0, 0, 0, 0.50)"
 	c.fillRect(0, 0, canvas.width, canvas.height)
 
-	if (timer % 3 == 0){
+	if (timer % 15 == 0){
 		create();
+		timer = 0
 	}
 	timer += 1
 	for (var i = 0; i < FireworkArray.length; i++){
