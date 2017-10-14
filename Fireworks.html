@@ -15,6 +15,59 @@
 		</head>
 		<body>
 			<canvas></canvas>
-			<script src="https://raw.githubusercontent.com/nwrtsfth/Fireworks/master/Firework.js"></script>
+			<script>
+						if (this.radius - 0.1 >= 0){
+			this.radius -= 0.1
+		}
+	}
+
+	this.update = function(){
+		if (this.fired){
+			this.move();
+			this.display();
+		}
+		this.explode();
+		this.sparks();
+		if (this.fired == false && this.sparkArray.length == 0){
+			index = FireworkArray.indexOf(this);
+			FireworkArray.splice(index, 1)
+		}
+	}
+}
+
+function create(){
+	x = randint((innerWidth / 10), (innerWidth - (innerWidth / 10)));
+	y = innerHeight;
+	dx = randint(-100, 100) / 10;
+	dy = randint(-200, -300) / 10;
+	firework = new Firework(x, y, dx, dy);
+	FireworkArray.push(firework)
+}
+
+var ColorArray = [["rgb(255,0,0)", "rgb(255,50,0)", "rgb(255,0,100)"],
+				  ["rgb(0,255,0)", "rgb(50,255,0)", "rgb(0,255,100)"],
+				  ["rgb(0,0,255)", "rgb(0,100,255)", "rgb(50,0,255)"],
+				  ["rgb(255,255,0)", "rgb(255,200,0)", "rgb(255,150,0)"],
+				  ["rgb(255,0,255)", "rgb(130,0,130)", "rgb(255,20,150)"],
+				  ["rgb(0,255,255)", "rgb(100,160,160)", "rgb(180,240,240)"]]
+var FireworkArray = [];
+var timer = 0
+
+function animate(){
+	requestAnimationFrame(animate);
+	c.clearRect(0, 0, innerWidth, innerHeight);
+
+	if (timer % 20 == 0){
+		create();
+	}
+	timer += 1
+	for (var i = 0; i < FireworkArray.length; i++){
+		firework = FireworkArray[i];
+		firework.update();
+	}
+}
+
+animate();
+			</script>
 		</body>
 	</html>
