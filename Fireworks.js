@@ -160,7 +160,7 @@ function animate(){
 	c.fillStyle = "rgba(0, 0, 0, 0.50)"
 	c.fillRect(0, 0, canvas.width, canvas.height)
 
-	if (timer %  == 0){
+	if (timer % 3 == 0){
 		create();
 	}
 	timer += 1
