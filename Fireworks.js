@@ -3,10 +3,6 @@ var c = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-window.addEventListener("mousemove", function(event) {
-	console.log(event.x, event.y)
-})
-
 window.addEventListener("resize", function(event) {
 	canvas.width  = innerWidth;
 	canvas.height = innerHeight;
