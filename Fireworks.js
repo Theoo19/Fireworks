@@ -163,6 +163,10 @@ function animate(){
 	c.fillStyle = "rgba(0, 0, 0, 0.5)"
 	c.fillRect(0, 0, canvas.width, canvas.height)
 
+	c.font = "50px Arial"
+	c.fillStyle = "white"
+	c.fillText("Gelukkig nieuw jaar!", 0, 0)
+	
 	if (timer % 10 == 0){
 		FireworkArray.push(new Firework(randint(25, 35)))
 		timer = 0
