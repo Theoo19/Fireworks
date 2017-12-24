@@ -163,10 +163,7 @@ function animate(){
 	c.fillStyle = "rgba(0, 0, 0, 0.5)"
 	c.fillRect(0, 0, canvas.width, canvas.height)
 
-	c.font = "100px Arial"
-	c.fillStyle = "white"
-	c.textAllign = "center"
-	c.fillText("Gelukkig nieuw jaar!", canvas.width / 2, canvas.width / 2)
+	
 	
 	if (timer % 10 == 0){
 		FireworkArray.push(new Firework(randint(25, 35)))
@@ -180,6 +177,11 @@ function animate(){
 			FireworkArray.splice(i, 1)
 		}
 	}
+	
+	c.font = "100px Arial"
+	c.fillStyle = "white"
+	c.textAllign = "center"
+	c.fillText("Gelukkig nieuw jaar!", canvas.width / 2, canvas.width / 2)
 
 	timer += 1
 }
