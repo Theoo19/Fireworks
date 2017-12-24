@@ -8,18 +8,25 @@ window.addEventListener("resize", function(event) {
 	canvas.height = innerHeight;
 })
 
+window.addEventListener("click", function(event) {
+	FireworkArray.push(new Firework(randint(25, 35)))
+})
+
 function randint(a, b){
 	var c = b - a;
 	return Math.floor(Math.random() * c) + a;
 }
 
 function randbool(){
-	if (randint(0, 2) == 0){
-		return true
-	}
-	else{
-		return false
-	}
+	return [true, false][randint(0, 2)]
+}
+
+function randnegative(){
+	return [-1, 1][randint(0, 2)]
+}
+
+function randitem(list){
+	return list[randint(0, list.length)]
 }
 
 function circle(x, y, radius, color){
@@ -30,141 +37,146 @@ function circle(x, y, radius, color){
 	c.closePath();
 }
 
-function Spark(x, y, dx, dy, color){
-	this.x = x;
-	this.y = y;
+function line(x, y, x2, y2, width, color){
+	c.beginPath();
+	c.moveTo(x, y);
+	c.lineTo(x2, y2);
+	c.lineWidth = width;
+	c.strokeStyle = color;
+	c.stroke();
+	c.closePath();
+}
 
-	this.dx = dx;
-	this.dy = dy;
-	this.color = color;
-	this.lifetime = randint(40, 50);
+function Particle(x, y, dx, dy, radius, color){
+	this.x = x
+	this.y = y
+	this.last_x = this.x - dx
+	this.last_y = this.y - dy
+	this.radius = radius
+	this.color = color
 
-	this.move = function(){
-		this.x += this.dx;
-		this.y += this.dy;
-
-		this.dx *= 0.99;
-		this.dy += gravity / 2;
+	this.dx = function(){
+		return this.x - this.last_x
 	}
 
-	this.time = function(){
-		this.lifetime -= 1;
-		if (this.lifetime == 0){
-			return true;
-		}
+	this.dy = function(){
+		return this.y - this.last_y
+	}
+
+	this.move = function(){
+		dx = this.x - this.last_x
+		dy = this.y - this.last_y
+
+		this.last_x = this.x
+		this.last_y = this.y
+
+		this.x += dx - gravity / 10 * (Math.abs(dx) / dx)
+		this.y += dy + gravity
 	}
 
 	this.display = function(){
-		circle(this.x, this.y, this.lifetime / 10, this.color);
+		circle(this.x, this.y, this.radius, this.color)
+		line(this.x, this.y, this.last_x, this.last_y, this.radius * 1.5, this.color)
+	}
+
+	this.update = function(){
+		this.move()
+		this.display()
 	}
 }
 
-function Firework(x, y, dx, dy){
-	this.x = x;
-	this.y = y;
-	this.dx = dx;
-	this.dy = dy;
-	this.sparkArray = [];
-	this.color = "rgb(255,255,255)";
-	this.radius = 5;
-	this.fired = true;
+function Firework(particle_amount){
+	arrival_x = randint(0, (innerWidth / 4))
+	arrival_y = innerHeight - randint(0, (innerHeight / 2.5))
+	x = randint((innerWidth / 30), (innerWidth - (innerWidth / 30)))
+	y = innerHeight
+	dx =  Math.round(Math.sqrt(2 * arrival_x * (gravity / 5))) * randnegative()
+	dy = -Math.round(Math.sqrt(2 * arrival_y *  gravity))
+	radius = 5
+	color = "rgb(255,255,255)"
 
-	this.move = function(){
-		this.x += this.dx;
-		this.y += this.dy;
-
-		this.dx -= gravity / 10 * (Math.abs(this.dx) / this.dx);
-		this.dy += gravity;
-	}
+	this.firework = new Particle(x, y, dx, dy, radius, color)
+	this.sparkArray = []
+	this.exploded = false
+	this.particle_amount = particle_amount
 
 	this.explode = function(){
-		if (this.dy >= 5 && this.fired){
-			this.fired = false;
-			colortype = ColorArray[randint(0, ColorArray.length)];
+		this.exploded = true
+		color_palette = randitem(ColorArray)
 
-			for (var i = 0; i < 30; i++){
-				dx = randint(-50,50) / 10;
-				dy = randint(-100,10) / 10;
-				color = colortype[randint(0, colortype.length)];
-				spark = new Spark(this.x, this.y, dx, dy, color);
-				this.sparkArray.push(spark)
-			}
+		for (this.particle_amount; this.particle_amount > 0; this.particle_amount--){
+			dx = randint(-50, 50) / 10
+			dy = randint(-100, 10) / 10
+			radius = randint(4, 5)
+			color = randitem(color_palette)
+			spark = new Particle(this.firework.x, this.firework.y, dx, dy, radius, color)
+			this.sparkArray.push(spark)
 		}
+		delete this.particle_amount
 	}
 
-	this.sparks = function(){
-		for (var i = 0; i < this.sparkArray.length; i++){
-			spark = this.sparkArray[i];
-			spark.move();
-			spark.display();
-			if (spark.time()){
-				index = this.sparkArray.indexOf(spark);
-				this.sparkArray.splice(index, 1);
-			}
-		}
-	}
-
-	this.display = function(){
-		circle(this.x, this.y, this.radius, this.color);
-		if (this.radius - 0.1 >= 1){
-			this.radius -= 0.1;
+	this.finished = function(){
+		if (this.exploded && this.sparkArray.length == 0){
+			return true
 		}
 	}
 
 	this.update = function(){
-		if (this.fired){
-			this.move();
-			this.display();
+		if (this.firework.dy() >= gravity * 10 && !this.exploded){
+			this.explode()
 		}
-		this.explode();
-		this.sparks();
-		if (this.fired == false && this.sparkArray.length == 0){
-			index = FireworkArray.indexOf(this);
-			FireworkArray.splice(index, 1);
+
+		if (!this.exploded){
+			this.firework.update()
+			if (this.firework.radius > 1){
+				this.firework.radius -= lifetimer}
+		}
+
+		for (let i = 0; i < this.sparkArray.length; i++){
+			spark = this.sparkArray[i]
+			spark.update()
+			spark.radius -= lifetimer
+			if (Math.round(spark.radius) == 0){
+				this.sparkArray.splice(i, 1)
+			}
 		}
 	}
 }
 
-function create(){
-	x = randint((innerWidth / 10), (innerWidth - (innerWidth / 10)));
-	y = innerHeight;
-	width = randint(0, (innerWidth / 4));
-	height = innerHeight - randint(0, (innerHeight / 2.5));
-	dx = Math.round(Math.sqrt(2 * (gravity / 10) * width));
-	dy = -Math.round(Math.sqrt(2 * gravity * height));
-
-	if (randbool()){
-		dx = -dx
-	}
-
-	firework = new Firework(x, y, dx, dy);
-	FireworkArray.push(firework);
-}
-
-var ColorArray = [["rgb(255,0,0)", "rgb(255,50,0)", "rgb(255,0,100)"],
-				  ["rgb(0,255,0)", "rgb(50,255,0)", "rgb(0,255,100)"],
-				  ["rgb(0,0,255)", "rgb(0,100,255)", "rgb(50,0,255)"],
+var ColorArray = [["rgb(250,0,0)", "rgb(255,50,0)", "rgb(255,0,100)"],
+				  ["rgb(0,250,0)", "rgb(50,250,0)", "rgb(0,250,100)"],
+				  ["rgb(0,0,250)", "rgb(0,100,250)", "rgb(50,0,250)"],
 				  ["rgb(255,255,0)", "rgb(255,200,0)", "rgb(255,150,0)"],
 				  ["rgb(255,0,255)", "rgb(130,0,130)", "rgb(255,20,150)"],
-				  ["rgb(0,255,255)", "rgb(100,160,160)", "rgb(180,240,240)"]];
+				  ["rgb(0,255,255)", "rgb(100,160,160)", "rgb(180,240,240)"],
+				  ["rgb(255,10,50)", "rgb(255,110,50)", "rgb(245,50,100)"],
+				  ["rgb(145,240,50)", "rgb(45,225,100)", "rgb(205,250,50)"],
+				  ["rgb(65,100,220)", "rgb(100,65,220)", "rgb(50,160,210)"],
+				  ["rgb(255,90,5)", "rgb(255,155,5)", "rgb(255,200,5)"]]
 var FireworkArray = [];
-var gravity = 0.5
+var lifetimer = 0.1
+var gravity = 0.2
 var timer = 0;
 
 function animate(){
 	requestAnimationFrame(animate);
-	c.fillStyle = "rgba(0, 0, 0, 0.50)"
+	c.fillStyle = "rgba(0, 0, 0, 0.5)"
 	c.fillRect(0, 0, canvas.width, canvas.height)
 
-	if (timer % 15 == 0){
-		create();
+	if (timer % 10 == 0){
+		FireworkArray.push(new Firework(randint(25, 35)))
 		timer = 0
 	}
-	timer += 1
-	for (var i = 0; i < FireworkArray.length; i++){
-		firework = FireworkArray[i];
-		firework.update();
+
+	for (let i = FireworkArray.length - 1; i >= 0; i--){
+		console.log(i)
+		FireworkArray[i].update()
+		if (FireworkArray[i].finished()){
+			FireworkArray.splice(i, 1)
+		}
 	}
+
+	timer += 1
 }
 
 animate();
