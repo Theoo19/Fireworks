@@ -178,10 +178,10 @@ function animate(){
 		}
 	}
 	
-	c.font = "30px Comic Sans MS";
-	c.fillStyle = "red";
-	c.textAlign = "center";
-	c.fillText("Hello World", canvas.width/2, canvas.height/2)
+	c.font = "100px Arial"
+	c.fillStyle = "rgb(95,2,31)"
+	c.textAlign = "center"
+	c.fillText("Gelukkig nieuw jaar!", innerWidth/2, innerHeight/2)
 
 	timer += 1
 }
