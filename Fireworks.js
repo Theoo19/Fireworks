@@ -181,7 +181,7 @@ function animate(){
 	c.font = "100px Arial"
 	c.fillStyle = "white"
 	c.textAllign = "center"
-	c.fillText("Gelukkig nieuw jaar!", canvas.width / 2, canvas.width / 2)
+	c.fillText("Gelukkig nieuw jaar!", innerWidth / 2, innerHeight / 2)
 
 	timer += 1
 }
