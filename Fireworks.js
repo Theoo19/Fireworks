@@ -178,10 +178,10 @@ function animate(){
 		}
 	}
 	
-	ctx.font = "30px Comic Sans MS";
-	ctx.fillStyle = "red";
-	ctx.textAlign = "center";
-	ctx.fillText("Hello World", canvas.width/2, canvas.height/2)
+	c.font = "30px Comic Sans MS";
+	c.fillStyle = "red";
+	c.textAlign = "center";
+	c.fillText("Hello World", canvas.width/2, canvas.height/2)
 
 	timer += 1
 }
